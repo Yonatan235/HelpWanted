@@ -1,4 +1,4 @@
-# HelpWanted (under construction)
+# HelpWanted
 
 A simple app for sharing "Now Hiring" signs you spot in real life.
 
