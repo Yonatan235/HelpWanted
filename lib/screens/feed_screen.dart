@@ -7,32 +7,55 @@ class FeedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('posts')
-          .orderBy('timestamp', descending: true)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return Stack(
+      children: [
+        // Background Image
+        Positioned.fill(
+          child: Image.asset(
+            "assets/feed_bg.jpg",
+            fit: BoxFit.cover,
+          ),
+        ),
 
-        final docs = snapshot.data!.docs;
+        // Semi-transparent overlay for readability
+        Positioned.fill(
+          child: Container(color: Colors.black.withOpacity(0.25)),
+        ),
 
-        if (docs.isEmpty) {
-          return const Center(child: Text("No shared jobs yet"));
-        }
+        // Feed Content
+        StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('posts')
+              .orderBy('timestamp', descending: true)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-        final posts = docs
-            .map((d) => JobPost.fromJson(d.data() as Map<String, dynamic>))
-            .toList();
+            final docs = snapshot.data!.docs;
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(12),
-          itemCount: posts.length,
-          itemBuilder: (_, i) => _JobCard(post: posts[i]),
-        );
-      },
+            if (docs.isEmpty) {
+              return const Center(
+                child: Text(
+                  "No shared jobs yet",
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+              );
+            }
+
+            final posts = docs
+                .map((d) => JobPost.fromJson(d.data() as Map<String, dynamic>))
+                .toList();
+
+            return ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: posts.length,
+              itemBuilder: (_, i) => _JobCard(post: posts[i]),
+            );
+          },
+        ),
+      ],
     );
   }
 }
@@ -44,10 +67,13 @@ class _JobCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 3,
-      shadowColor: Colors.black26,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      margin: const EdgeInsets.only(bottom: 16),
+      elevation: 6,
+      shadowColor: Colors.black45,
+      color: Colors.white.withOpacity(0.92),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+      ),
+      margin: const EdgeInsets.only(bottom: 18),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,6 +85,10 @@ class _JobCard extends StatelessWidget {
                   child: Image.network(
                     post.imageUrl,
                     fit: BoxFit.cover,
+                    loadingBuilder: (_, child, progress) =>
+                        progress == null
+                            ? child
+                            : const Center(child: CircularProgressIndicator()),
                   ),
                 )
               : Container(
@@ -70,7 +100,7 @@ class _JobCard extends StatelessWidget {
 
           // Text Info
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -78,7 +108,7 @@ class _JobCard extends StatelessWidget {
                   post.title,
                   style: const TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 if (post.employer.isNotEmpty)
@@ -94,7 +124,11 @@ class _JobCard extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
                       post.notes,
-                      style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
               ],
