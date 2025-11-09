@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 import 'screens/map_screen.dart';
 import 'screens/feed_screen.dart';
 import 'screens/add_screen.dart';
 
-void main() => runApp(const HelpWantedApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const HelpWantedApp());
+}
 
 class HelpWantedApp extends StatefulWidget {
   const HelpWantedApp({super.key});
@@ -20,7 +29,11 @@ class _HelpWantedAppState extends State<HelpWantedApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Help Wanted",
-      theme: ThemeData(useMaterial3: true, colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal)),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+      ),
       home: Scaffold(
         appBar: AppBar(title: const Text("Help Wanted")),
         body: screens[index],
@@ -37,4 +50,3 @@ class _HelpWantedAppState extends State<HelpWantedApp> {
     );
   }
 }
-
